@@ -18,7 +18,7 @@ const cheerio = require('cheerio');
 const uriDE = 'https://www.bfh.ch/ti/de/ueber-das-ti/standort-infrastruktur/';
 const uriFR = 'https://www.bfh.ch/ti/fr/le-ti/lieux-infrastructures/';
 
-// Read the flags for multilingual menu
+// Read the args for multilingual menu
 const args = process.argv.slice(1);
 const uri = getMultilingualURI(args);
 
@@ -73,15 +73,19 @@ request(uri, function (error, response, html) {
  * @return: The script URI in German or French
  */
 function getMultilingualURI(args) {
+	// set German URI as default
 	var uri = uriDE;
 
+	// check if the argument for DE has been specified (default)
 	let flagDE = args.some(function (val) {
 		return val === '--de';
 	});
+	// check if the argument for FR has been specified (optional)
 	let flagFR = args.some(function (val) {
 		return val === '--fr';
 	});
 
+	// overwrite URI if any language has been specified
 	flagDE ? uri = uriDE : uri = uriFR;
 	flagFR ? uri = uriFR : uri = uriDE;
 
