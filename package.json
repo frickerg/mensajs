@@ -1,0 +1,30 @@
+{
+	"name": "mensa.js",
+	"version": "1.0.0",
+	"description": "Webcrawler script to retrieve the daily menu of the Bern University of Applied Sciences cantina in Biel",
+	"main": "mensa.js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/frickerg/mensajs.git"
+	},
+	"keywords": [
+		"webcrawler",
+		"mensa",
+		"cantina",
+		"food",
+		"student",
+		"bfh",
+		"university",
+		"just for fun"
+	],
+	"author": "frickerg",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/frickerg/mensajs/issues"
+	},
+	"homepage": "https://github.com/frickerg/mensajs#readme",
+	"dependencies": {
+		"cheerio": "^1.0.0-rc.2",
+		"request": "^2.88.0"
+	}
+}
