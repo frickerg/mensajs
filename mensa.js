@@ -14,12 +14,16 @@
 const request = require('request');
 const cheerio = require('cheerio');
 
-// specify the uri of the site which contains the cantina menu
-const uri = 'https://www.bfh.ch/ti/de/ueber-das-ti/standort-infrastruktur/';
+// specify the URIs of the sites which contain the cantina menu
+const uriDE = 'https://www.bfh.ch/ti/de/ueber-das-ti/standort-infrastruktur/';
+const uriFR = 'https://www.bfh.ch/ti/fr/le-ti/lieux-infrastructures/';
 
+// Read the flags for multilingual menu
+const args = process.argv.slice(1);
+const uri = getMultilingualURI(args);
 
 /*
- * Connects to the specified uri and reads today's cantina menu in Biel.
+ * Connects to the specified URI and reads today's cantina menu in Biel.
  * The validation process only checks against today's day to only display relevant menu entries.
  */
 request(uri, function (error, response, html) {
@@ -53,11 +57,36 @@ request(uri, function (error, response, html) {
 		// unexpected error in the RequestAPI
 		console.error(error);
 	} else {
-		// if this error occurs, the specified uri is invalit and/or outdated
-		console.error('\nERR: the specified uri is invalid');
+		// if this error occurs, the specified URI is invalid and/or outdated
+		console.error('\nERR: the specified URI is invalid');
 		console.error('=> ' + uri + '\n');
 	}
 });
+
+/*
+ * Returns the BFH URI according to the specified language flag.
+
+ * Running your command with --de will return the German URI.
+ * Running your command with --fr will return the French URI.
+ * If no language is specified, the function will return the German URI by default.
+ *
+ * @return: The script URI in German or French
+ */
+function getMultilingualURI(args) {
+	var uri = uriDE;
+
+	let flagDE = args.some(function (val) {
+		return val === '--de';
+	});
+	let flagFR = args.some(function (val) {
+		return val === '--fr';
+	});
+
+	flagDE ? uri = uriDE : uri = uriFR;
+	flagFR ? uri = uriFR : uri = uriDE;
+
+	return uri;
+}
 
 /*
  * Returns the current date as dd.mm.yyyy
