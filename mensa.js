@@ -1,35 +1,82 @@
+/*
++-----------------------------------+
+|              mensa.js             |
++-----------------------------------+
+|      Daily Cantina Webcrawler     |
+|        By Guillaume Fricker       |
++-----------------------------------+
+|     The world is my playground    |
++-----------------------------------+
+| Follow me on GitHub:  | @frickerg |
++-----------------------+-----------+
+*/
+
 const request = require('request');
 const cheerio = require('cheerio');
-const url = 'https://www.bfh.ch/ti/de/ueber-das-ti/standort-infrastruktur/';
 
-request(url, function (error, response, html) {
+// specify the uri of the site which contains the cantina menu
+const uri = 'https://www.bfh.ch/ti/de/ueber-das-ti/standort-infrastruktur/';
+
+
+/*
+ * Connects to the specified uri and reads today's cantina menu in Biel.
+ * The validation process only checks against today's day to only display relevant menu entries.
+ */
+request(uri, function (error, response, html) {
+	// empty data array for results
 	var data = [];
-	if (!error && response.statusCode == 200) {
+
+	if (response.statusCode == 200) {
+		// define the loaded DOM as $ for jQuery syntax
 		var $ = cheerio.load(html);
+
 		$('table').each(function (i, element) {
+			// retrieve all tr elements inside the current table element
 			var rows = $(element).children('tbody').children('tr');
+
 			rows.each(function (i, element) {
+				// retrieve all td elements inside the current row element
 				var column = $(element).children('td');
+
+				// validates the retrieved set of columns by checking the content of the second column
 				if ($(column.get(1)).text() == getTodayDate()) {
 					column.each(function (i, element) {
+						// pushes each column with completely unformatted text
 						data.push($(element).text().replace(/([\r\t\n])+/g, ''));
 					});
 				}
 			});
 		});
+		// time to see the results
+		printMenu(data);
+	} else if (error) {
+		// unexpected error in the RequestAPI
+		console.error(error);
+	} else {
+		// if this error occurs, the specified uri is invalit and/or outdated
+		console.error('\nERR: the specified uri is invalid');
+		console.error('=> ' + uri + '\n');
 	}
-	printMenu(data);
 });
 
-
+/*
+ * Returns the current date as dd.mm.yyyy
+ * Formatted explicitly to match the content on site
+ *
+ * @return: today's date in the validating format
+ */
 function getTodayDate() {
 	var today = new Date();
 	var dd = String(today.getDate()).padStart(2, '0');
-	var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+	var mm = String(today.getMonth() + 1).padStart(2, '0');
 	var yyyy = today.getFullYear();
 	return dd + '.' + mm + '.' + yyyy;
 }
 
+/*
+ * Print the menu inside the console.
+ * See README.md to learn how you can bind this output to a terminal command!
+ */
 function printMenu(data) {
 	console.log('\n');
 	console.log(data[0] + ' ' + data[1]);
