@@ -43,10 +43,11 @@ request(uri, function (error, response, html) {
 				var column = $(element).children('td');
 
 				// validates the retrieved set of columns by checking the content of the second column
-				if ($(column.get(1)).text() == getTodayDate()) {
+				var check = formatColumnString($(column.get(1)).text());
+				if (check == getTodayDate()) {
 					column.each(function (i, element) {
 						// pushes each column with completely unformatted text
-						data.push($(element).text().replace(/([\r\t\n])+/g, ''));
+						data.push(formatColumnString($(element).text()));
 					});
 				}
 			});
@@ -104,6 +105,15 @@ function getTodayDate() {
 	var mm = String(today.getMonth() + 1).padStart(2, '0');
 	var yyyy = today.getFullYear();
 	return dd + '.' + mm + '.' + yyyy;
+}
+
+/*
+ * Returns the string of a column without spacing-characters
+ *
+ * @return: Formatted string without spacing
+ */
+function formatColumnString(input) {
+	return input.replace(/([\r\t\n])+/g, '')
 }
 
 /*
