@@ -123,6 +123,6 @@ function formatColumnString(input) {
 function printMenu(data) {
 	console.log('\n');
 	console.log(data[0] + ' ' + data[1]);
-	console.log(data[2]);
+	console.log(data[2].replace(/([a-z])([A-Z])/g, '$1, $2'));
 	console.log('\n');
 }
