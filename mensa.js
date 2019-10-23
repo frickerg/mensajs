@@ -22,6 +22,10 @@ const uriFR = 'https://www.bfh.ch/ti/fr/le-ti/lieux-infrastructures/';
 const args = process.argv.slice(1);
 const uri = getMultilingualURI(args);
 
+let dinnerReady = false;
+console.clear();
+walk(1);
+
 /*
  * Connects to the specified URI and reads today's cantina menu in Biel.
  * The validation process only checks against today's day to only display relevant menu entries.
@@ -121,8 +125,24 @@ function formatColumnString(input) {
  * See README.md to learn how you can bind this output to a terminal command!
  */
 function printMenu(data) {
-	console.log('\n');
-	console.log(data[0] + ' ' + data[1]);
+	dinnerReady = true;
+	let food = ['🍳','🍝','🥗','🥘','🌭','🍔','🍟','🥙','🍛'];
+	console.clear();
+	console.log('\n' + food[Math.floor(Math.random() * food.length)] + ' ' + data[0] + ' ' + data[1]);
 	console.log(data[2].replace(/([a-z])([A-Z])/g, '$1, $2'));
-	console.log('\n');
+  console.log('\n');
+}
+
+/*
+ * Loading animation, custom made for slow BFH network ;)
+ */
+function walk(i){
+	if(!dinnerReady){
+		let walker = ['🚶🏼','🏃'];
+		process.stdout.write('  ' + walker[i] + ' wart, mues schnäu de Hans go frage...   ');
+		process.stdout.write("\r");
+		setTimeout(function() {
+			walk(i == 1 ? 0 : 1);
+		},200);
+	}
 }
