@@ -13,16 +13,23 @@
 
 const request = require('request');
 const cheerio = require('cheerio');
+const today = new Date();
+
+// setting for mardi francophone
+const mardiFrancophone = today.getDay() == 2;
 
 // specify the URIs of the sites which contain the cantina menu
 const uriDE = 'https://www.bfh.ch/ti/de/ueber-das-ti/standort-infrastruktur/';
 const uriFR = 'https://www.bfh.ch/ti/fr/le-ti/lieux-infrastructures/';
+
+
 
 // Read the args for multilingual menu
 const args = process.argv.slice(1);
 const uri = getMultilingualURI(args);
 
 let dinnerReady = false;
+
 console.clear();
 walk(1);
 
@@ -48,7 +55,7 @@ request(uri, function (error, response, html) {
 
 				// validates the retrieved set of columns by checking the content of the second column
 				var check = formatColumnString($(column.get(1)).text());
-				if (check == getTodayDate()) {
+				if (checkTodayDate(check)) {
 					column.each(function (i, element) {
 						// pushes each column with completely unformatted text
 						data.push(formatColumnString($(element).text()));
@@ -90,6 +97,12 @@ function getMultilingualURI(args) {
 		return val === '--fr';
 	});
 
+	// support mardi francophone
+	if(mardiFrancophone){
+		flagFR = true;
+		flagDE = false;
+	}
+
 	// overwrite URI if any language has been specified
 	flagDE ? uri = uriDE : uri = uriFR;
 	flagFR ? uri = uriFR : uri = uriDE;
@@ -103,12 +116,12 @@ function getMultilingualURI(args) {
  *
  * @return: today's date in the validating format
  */
-function getTodayDate() {
-	var today = new Date();
+function checkTodayDate(check) {
 	var dd = String(today.getDate()).padStart(2, '0');
 	var mm = String(today.getMonth() + 1).padStart(2, '0');
-	var yy = today.getFullYear() % 100;
-	return dd + '.' + mm + '.' + yy;
+	var yyyy = today.getFullYear()
+	var yy = yyyy % 100;
+	return (check == dd + '.' + mm + '.' + yy) || (check == dd + '.' + mm + '.' + yyyy);
 }
 
 /*
@@ -139,7 +152,8 @@ function printMenu(data) {
 function walk(i){
 	if(!dinnerReady){
 		let walker = ['🚶🏼','🏃'];
-		process.stdout.write('  ' + walker[i] + ' wart, mues schnäu de Hans go frage...   ');
+		let text = mardiFrancophone ? ' attend, je vais demander Hans...  ' : ' wart, mues schnäu de Hans go frage...  ';
+		process.stdout.write('  ' + walker[i] + text);
 		process.stdout.write("\r");
 		setTimeout(function() {
 			walk(i == 1 ? 0 : 1);
