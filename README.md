@@ -92,3 +92,9 @@ After successfully performing all required steps described above, just open a te
 ![Who's hungry?](assets/terminal.gif)
 
 *Copyright (c) 2019 Guillaume Fricker*
+
+## Contributors Hall of Fame
+
+**Gabriel Hess (@hessg1):**
+- Fixed a breaking error after the layout of the website had changed
+- Implemented the "Mardi Francophone", an important tradition at the I4MI
