@@ -146,9 +146,8 @@ function printMenu(data) {
 	const food = ['🍳', '🍝', '🥗', '🥘', '🌭', '🍔', '🍟', '🥙', '🍛'];
 
 	console.clear();
-	console.log('\n' + food[Math.floor(Math.random() * food.length)] + ' ' + data[0] + ' ' + data[1]);
-	console.log(data[2].replace(/([a-z])([A-Z])/g, '$1, $2'));
-	console.log('\n');
+	console.log(food[Math.floor(Math.random() * food.length)] + ' ' + data[0] + ' ' + data[1]);
+	console.log(data[2].replace(/([a-z]|[à-ú])([A-Z]|[À-Ú])/g, '$1, $2') + '\n');
 }
 
 /*
