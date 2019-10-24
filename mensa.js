@@ -15,21 +15,21 @@ const request = require('request');
 const cheerio = require('cheerio');
 const today = new Date();
 
-// setting for mardi francophone
-const mardiFrancophone = today.getDay() == 2;
+// setting for mardi francophone (can be overwritten)
+let mardiFrancophone = today.getDay() == 2;
 
 // specify the URIs of the sites which contain the cantina menu
 const uriDE = 'https://www.bfh.ch/ti/de/ueber-das-ti/standort-infrastruktur/';
 const uriFR = 'https://www.bfh.ch/ti/fr/le-ti/lieux-infrastructures/';
 
-
-
 // Read the args for multilingual menu
 const args = process.argv.slice(1);
 const uri = getMultilingualURI(args);
 
+// Setting flag before displaying the menu
 let dinnerReady = false;
 
+// Starting the program
 console.clear();
 walk(1);
 
@@ -37,7 +37,7 @@ walk(1);
  * Connects to the specified URI and reads today's cantina menu in Biel.
  * The validation process only checks against today's day to only display relevant menu entries.
  */
-request(uri, function (error, response, html) {
+request(uri, (error, response, html) => {
 	// empty data array for results
 	var data = [];
 
@@ -45,18 +45,18 @@ request(uri, function (error, response, html) {
 		// define the loaded DOM as $ for jQuery syntax
 		var $ = cheerio.load(html);
 
-		$('table').each(function (i, element) {
+		$('table').each((i, element) => {
 			// retrieve all tr elements inside the current table element
 			var rows = $(element).children('tbody').children('tr');
 
-			rows.each(function (i, element) {
+			rows.each((i, element) => {
 				// retrieve all td elements inside the current row element
 				var column = $(element).children('td');
 
 				// validates the retrieved set of columns by checking the content of the second column
 				var check = formatColumnString($(column.get(1)).text());
 				if (checkTodayDate(check)) {
-					column.each(function (i, element) {
+					column.each((i, element) => {
 						// pushes each column with completely unformatted text
 						data.push(formatColumnString($(element).text()));
 					});
@@ -89,16 +89,20 @@ function getMultilingualURI(args) {
 	var uri = uriDE;
 
 	// check if the argument for DE has been specified (default)
-	let flagDE = args.some(function (val) {
+	let flagDE = args.some((val) => {
 		return val === '--de';
 	});
 	// check if the argument for FR has been specified (optional)
-	let flagFR = args.some(function (val) {
+	let flagFR = args.some((val) => {
 		return val === '--fr';
 	});
 
+	if (flagFR) {
+		mardiFrancophone = true;
+	}
+
 	// support mardi francophone
-	if(mardiFrancophone){
+	if (mardiFrancophone) {
 		flagFR = true;
 		flagDE = false;
 	}
@@ -139,24 +143,24 @@ function formatColumnString(input) {
  */
 function printMenu(data) {
 	dinnerReady = true;
-	let food = ['🍳','🍝','🥗','🥘','🌭','🍔','🍟','🥙','🍛'];
+	const food = ['🍳', '🍝', '🥗', '🥘', '🌭', '🍔', '🍟', '🥙', '🍛'];
+
 	console.clear();
-	console.log('\n' + food[Math.floor(Math.random() * food.length)] + ' ' + data[0] + ' ' + data[1]);
-	console.log(data[2].replace(/([a-z])([A-Z])/g, '$1, $2'));
-  console.log('\n');
+	console.log(food[Math.floor(Math.random() * food.length)] + ' ' + data[0] + ' ' + data[1]);
+	console.log(data[2].replace(/([a-z]|[à-ú])([A-Z]|[À-Ú])/g, '$1, $2') + '\n');
 }
 
 /*
  * Loading animation, custom made for slow BFH network ;)
  */
-function walk(i){
-	if(!dinnerReady){
-		let walker = ['🚶🏼','🏃'];
-		let text = mardiFrancophone ? ' attend, je vais demander Hans...  ' : ' wart, mues schnäu de Hans go frage...  ';
+function walk(i) {
+	if (!dinnerReady) {
+		const walker = ['🚶🏼', '🏃'];
+		const text = mardiFrancophone ? ' attend, je vais demander Hans...  ' : ' wart, mues schnäu de Hans go frage...  ';
 		process.stdout.write('  ' + walker[i] + text);
 		process.stdout.write("\r");
-		setTimeout(function() {
+		setTimeout(() => {
 			walk(i == 1 ? 0 : 1);
-		},200);
+		}, 200);
 	}
 }
