@@ -15,8 +15,8 @@ const request = require('request');
 const cheerio = require('cheerio');
 const today = new Date();
 
-// setting for mardi francophone
-const mardiFrancophone = today.getDay() == 2;
+// setting for mardi francophone (can be overwritten)
+let mardiFrancophone = today.getDay() == 2;
 
 // specify the URIs of the sites which contain the cantina menu
 const uriDE = 'https://www.bfh.ch/ti/de/ueber-das-ti/standort-infrastruktur/';
@@ -96,6 +96,10 @@ function getMultilingualURI(args) {
 	let flagFR = args.some((val) => {
 		return val === '--fr';
 	});
+
+	if (flagFR) {
+		mardiFrancophone = true;
+	}
 
 	// support mardi francophone
 	if (mardiFrancophone) {
