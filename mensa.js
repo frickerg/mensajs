@@ -50,6 +50,11 @@ const today = new Date();
 // setting for mardi francophone (can be overwritten)
 let lang = today.getDay() == 2 ? 'fr' : 'de';
 
+// in the afternoon, we want to get tomorrows menu
+if(today.getHours() > 13 && today.getDay() != 5){
+	today.setDate(today.getDate() + 1);
+}
+
 // specify the URIs of the sites which contain the cantina menu
 const uriDE = 'https://www.bfh.ch/ti/de/ueber-das-ti/standort-infrastruktur/';
 const uriFR = 'https://www.bfh.ch/ti/fr/le-ti/lieux-infrastructures/';
@@ -101,7 +106,7 @@ request(uri, (error, response, html) => {
 		dinnerReady = true;
 		// unexpected error in the RequestAPI
 		console.log(error[lang]);
-		//console.error(error);
+		console.error(error);
 	} else {
 		dinnerReady = true;
 		// if this error occurs, the specified URI is invalid and/or outdated
