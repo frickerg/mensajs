@@ -11,10 +11,31 @@
 +-----------------------+-----------+
 */
 
+// define i18n strings
 const waiting = {
-	fr: ' attend, je vais demander Hans...  ',
-	de: ' wart, mues schnäu de Hans go frage...  '
+	fr: ' attend, je vais demander Hans...   ',
+	de: ' wart, mues schnäu de Hans go frage...   '
 }
+const nodata = {
+	fr: 'Pas de cuisine aujourd\'hui.',
+	de: 'Höt gits nüd.'
+}
+
+const alternatives = [
+	{
+		fr: 'Allez au Küban. 🥙',
+		de: 'Gang halt zum Küban. 🌯'
+	},
+	{
+		fr: 'Commandez une pizza. 🍕',
+		de: 'Bstell der en Pizza. 🍕'
+	},
+	{
+		fr: 'Va te chercher une baguette. 🥖',
+		de: 'Bitz Diät schadt der eh ned. 🤭'
+	}
+]
+
 
 const request = require('request');
 const cheerio = require('cheerio');
@@ -39,9 +60,9 @@ console.clear();
 walk(1);
 
 /*
- * Connects to the specified URI and reads today's cantina menu in Biel.
- * The validation process only checks against today's day to only display relevant menu entries.
- */
+* Connects to the specified URI and reads today's cantina menu in Biel.
+* The validation process only checks against today's day to only display relevant menu entries.
+*/
 request(uri, (error, response, html) => {
 	// empty data array for results
 	var data = [];
@@ -81,20 +102,20 @@ request(uri, (error, response, html) => {
 });
 
 /*
- * Returns the BFH URI according to the specified language flag.
+* Returns the BFH URI according to the specified language flag.
 
- * Running your command with --de will return the German URI.
- * Running your command with --fr will return the French URI.
- * If no language is specified, the function will return the German URI by default.
- *
- * @return: The script URI in German or French
- */
+* Running your command with --de will return the German URI.
+* Running your command with --fr will return the French URI.
+* If no language is specified, the function will return the German URI by default.
+*
+* @return: The script URI in German or French
+*/
 function getMultilingualURI(args) {
 	// set German URI as default
 	var uri = uriDE;
 
 	// check if the argument for FR has been specified (optional)
- 	if(args.some((val) => {
+	if(args.some((val) => {
 		return val === '--fr';
 	})){
 		lang = 'fr';
@@ -114,44 +135,51 @@ function getMultilingualURI(args) {
 }
 
 /*
- * Returns the current date as dd.mm.yyyy
- * Formatted explicitly to match the content on site
- *
- * @return: today's date in the validating format
- */
+* Returns the current date as dd.mm.yyyy
+* Formatted explicitly to match the content on site
+*
+* @return: today's date in the validating format
+*/
 function checkTodayDate(check) {
 	var dd = String(today.getDate()).padStart(2, '0');
 	var mm = String(today.getMonth() + 1).padStart(2, '0');
 	var yyyy = today.getFullYear()
 	var yy = yyyy % 100;
-	return (check == dd + '.' + mm + '.' + yy) || (check == dd + '.' + mm + '.' + yyyy);
+	return false //(check == dd + '.' + mm + '.' + yy) || (check == dd + '.' + mm + '.' + yyyy);
 }
 
 /*
- * Returns the string of a column without spacing-characters
- *
- * @return: Formatted string without spacing
- */
+* Returns the string of a column without spacing-characters
+*
+* @return: Formatted string without spacing
+*/
 function formatColumnString(input) {
 	return input.replace(/([\r\t\n])+/g, '')
 }
 
 /*
- * Print the menu inside the console.
- * See README.md to learn how you can bind this output to a terminal command!
- */
+* Print the menu inside the console.
+* See README.md to learn how you can bind this output to a terminal command!
+*/
 function printMenu(data) {
 	dinnerReady = true;
 	const food = ['🍳', '🍝', '🥗', '🥘', '🌭', '🍔', '🍟', '🥙', '🍛'];
 
 	console.clear();
-	console.log(food[Math.floor(Math.random() * food.length)] + ' ' + data[0] + ' ' + data[1]);
-	console.log(data[2].replace(/([a-z]|[à-ú])([A-Z]|[À-Ú])/g, '$1, $2') + '\n');
+	if(data[0]){
+		console.log(food[Math.floor(Math.random() * food.length)] + ' ' + data[0] + ' ' + data[1]);
+		console.log(data[2].replace(/([a-z]|[à-ú])([A-Z]|[À-Ú])/g, '$1, $2') + '\n');
+	}
+	else {
+		console.log('\n' + nodata[lang]);
+		console.log(alternatives[Math.floor(Math.random() * alternatives.length)][lang] + '\n');
+	}
+
 }
 
 /*
- * Loading animation, custom made for slow BFH network ;)
- */
+* Loading animation, custom made for slow BFH network ;)
+*/
 function walk(i) {
 	if (!dinnerReady) {
 		const walker = ['🚶🏼', '🏃'];
