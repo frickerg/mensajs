@@ -11,12 +11,17 @@
 +-----------------------+-----------+
 */
 
+const waiting = {
+	fr: ' attend, je vais demander Hans...  ',
+	de: ' wart, mues schnäu de Hans go frage...  '
+}
+
 const request = require('request');
 const cheerio = require('cheerio');
 const today = new Date();
 
 // setting for mardi francophone (can be overwritten)
-let mardiFrancophone = today.getDay() == 2;
+let lang = today.getDay() == 2 ? 'fr' : 'de';
 
 // specify the URIs of the sites which contain the cantina menu
 const uriDE = 'https://www.bfh.ch/ti/de/ueber-das-ti/standort-infrastruktur/';
@@ -88,28 +93,22 @@ function getMultilingualURI(args) {
 	// set German URI as default
 	var uri = uriDE;
 
-	// check if the argument for DE has been specified (default)
-	let flagDE = args.some((val) => {
-		return val === '--de';
-	});
 	// check if the argument for FR has been specified (optional)
-	let flagFR = args.some((val) => {
+ 	if(args.some((val) => {
 		return val === '--fr';
-	});
-
-	if (flagFR) {
-		mardiFrancophone = true;
+	})){
+		lang = 'fr';
 	}
 
-	// support mardi francophone
-	if (mardiFrancophone) {
-		flagFR = true;
-		flagDE = false;
+	// make it possible to override mardi francophone
+	if(args.some((val) => {
+		return val === '--de';
+	})){
+		lang = 'de';
 	}
 
-	// overwrite URI if any language has been specified
-	flagDE ? uri = uriDE : uri = uriFR;
-	flagFR ? uri = uriFR : uri = uriDE;
+	// set URI to correct language
+	lang == 'fr' ? uri = uriFR : uri = uriDE;
 
 	return uri;
 }
@@ -156,7 +155,7 @@ function printMenu(data) {
 function walk(i) {
 	if (!dinnerReady) {
 		const walker = ['🚶🏼', '🏃'];
-		const text = mardiFrancophone ? ' attend, je vais demander Hans...  ' : ' wart, mues schnäu de Hans go frage...  ';
+		const text = waiting[lang];
 		process.stdout.write('  ' + walker[i] + text);
 		process.stdout.write("\r");
 		setTimeout(() => {
