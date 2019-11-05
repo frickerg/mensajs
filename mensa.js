@@ -145,7 +145,7 @@ function checkTodayDate(check) {
 	var mm = String(today.getMonth() + 1).padStart(2, '0');
 	var yyyy = today.getFullYear()
 	var yy = yyyy % 100;
-	return false //(check == dd + '.' + mm + '.' + yy) || (check == dd + '.' + mm + '.' + yyyy);
+	return (check == dd + '.' + mm + '.' + yy) || (check == dd + '.' + mm + '.' + yyyy);
 }
 
 /*
