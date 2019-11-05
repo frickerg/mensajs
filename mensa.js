@@ -36,6 +36,12 @@ const alternatives = [
 	}
 ]
 
+const error =
+{
+	fr: 'Oups. Quelque chose a mal tourné. ☠️',
+	de: 'Ups, da esch öppis schief glaufe. ☠️'
+}
+
 
 const request = require('request');
 const cheerio = require('cheerio');
@@ -67,7 +73,7 @@ request(uri, (error, response, html) => {
 	// empty data array for results
 	var data = [];
 
-	if (response.statusCode == 200) {
+	if (response && response.statusCode == 200) {
 		// define the loaded DOM as $ for jQuery syntax
 		var $ = cheerio.load(html);
 
@@ -92,9 +98,12 @@ request(uri, (error, response, html) => {
 		// time to see the results
 		printMenu(data);
 	} else if (error) {
+		dinnerReady = true;
 		// unexpected error in the RequestAPI
-		console.error(error);
+		console.log(error[lang]);
+		//console.error(error);
 	} else {
+		dinnerReady = true;
 		// if this error occurs, the specified URI is invalid and/or outdated
 		console.error('\nERR: the specified URI is invalid');
 		console.error('=> ' + uri + '\n');
@@ -167,7 +176,7 @@ function printMenu(data) {
 
 	console.clear();
 	if(data[0]){
-		console.log(food[Math.floor(Math.random() * food.length)] + ' ' + data[0] + ' ' + data[1]);
+		console.log('\n' + food[Math.floor(Math.random() * food.length)] + ' ' + data[0] + ' ' + data[1]);
 		console.log(data[2].replace(/([a-z]|[à-ú])([A-Z]|[À-Ú])/g, '$1, $2') + '\n');
 	}
 	else {
