@@ -179,7 +179,7 @@ function printMenu(data) {
 
 	console.clear();
 	if (data[0]) {
-		console.log('\n' + food[Math.floor(Math.random() * food.length)] + ' ' + data[0] + ' ' + data[1]);
+		console.log(food[Math.floor(Math.random() * food.length)], data[0], data[1]);
 		console.log(data[2].replace(/([a-z]|[à-ú])([A-Z]|[À-Ú])/g, '$1, $2') + '\n');
 	} else {
 		console.log('\n' + nodata[lang]);
