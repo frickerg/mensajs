@@ -21,8 +21,7 @@ const nodata = {
 	de: 'Höt gits nüd.'
 }
 
-const alternatives = [
-	{
+const alternatives = [{
 		fr: 'Allez au Küban. 🥙',
 		de: 'Gang halt zum Küban. 🌯'
 	},
@@ -36,8 +35,7 @@ const alternatives = [
 	}
 ]
 
-const error =
-{
+const error = {
 	fr: 'Oups. Quelque chose a mal tourné. ☠️',
 	de: 'Ups, da esch öppis schief glaufe. ☠️'
 }
@@ -48,10 +46,10 @@ const cheerio = require('cheerio');
 const today = new Date();
 
 // setting for mardi francophone (can be overwritten)
-let lang = today.getDay() == 2 ? 'fr' : 'de';
+let lang = today.getDay() === 2 ? 'fr' : 'de';
 
 // in the afternoon, we want to get tomorrows menu
-if(today.getHours() > 13 && today.getDay() != 5){
+if (today.getHours() > 13 && today.getDay() != 5) {
 	today.setDate(today.getDate() + 1);
 }
 
@@ -71,14 +69,14 @@ console.clear();
 walk(1);
 
 /*
-* Connects to the specified URI and reads today's cantina menu in Biel.
-* The validation process only checks against today's day to only display relevant menu entries.
-*/
+ * Connects to the specified URI and reads today's cantina menu in Biel.
+ * The validation process only checks against today's day to only display relevant menu entries.
+ */
 request(uri, (error, response, html) => {
 	// empty data array for results
 	var data = [];
 
-	if (response && response.statusCode == 200) {
+	if (response && response.statusCode === 200) {
 		// define the loaded DOM as $ for jQuery syntax
 		var $ = cheerio.load(html);
 
@@ -129,62 +127,61 @@ function getMultilingualURI(args) {
 	var uri = uriDE;
 
 	// check if the argument for FR has been specified (optional)
-	if(args.some((val) => {
-		return val === '--fr';
-	})){
+	if (args.some((val) => {
+			return val === '--fr';
+		})) {
 		lang = 'fr';
 	}
 
 	// make it possible to override mardi francophone
-	if(args.some((val) => {
-		return val === '--de';
-	})){
+	if (args.some((val) => {
+			return val === '--de';
+		})) {
 		lang = 'de';
 	}
 
 	// set URI to correct language
-	lang == 'fr' ? uri = uriFR : uri = uriDE;
+	lang === 'fr' ? uri = uriFR : uri = uriDE;
 
 	return uri;
 }
 
 /*
-* Returns the current date as dd.mm.yyyy
-* Formatted explicitly to match the content on site
-*
-* @return: today's date in the validating format
-*/
+ * Returns the current date as dd.mm.yyyy
+ * Formatted explicitly to match the content on site
+ *
+ * @return: today's date in the validating format
+ */
 function checkTodayDate(check) {
 	var dd = String(today.getDate()).padStart(2, '0');
 	var mm = String(today.getMonth() + 1).padStart(2, '0');
 	var yyyy = today.getFullYear()
 	var yy = yyyy % 100;
-	return (check == dd + '.' + mm + '.' + yy) || (check == dd + '.' + mm + '.' + yyyy);
+	return (check === dd + '.' + mm + '.' + yy) || (check === dd + '.' + mm + '.' + yyyy);
 }
 
 /*
-* Returns the string of a column without spacing-characters
-*
-* @return: Formatted string without spacing
-*/
+ * Returns the string of a column without spacing-characters
+ *
+ * @return: Formatted string without spacing
+ */
 function formatColumnString(input) {
 	return input.replace(/([\r\t\n])+/g, '')
 }
 
 /*
-* Print the menu inside the console.
-* See README.md to learn how you can bind this output to a terminal command!
-*/
+ * Print the menu inside the console.
+ * See README.md to learn how you can bind this output to a terminal command!
+ */
 function printMenu(data) {
 	dinnerReady = true;
 	const food = ['🍳', '🍝', '🥗', '🥘', '🌭', '🍔', '🍟', '🥙', '🍛'];
 
 	console.clear();
-	if(data[0]){
-		console.log('\n' + food[Math.floor(Math.random() * food.length)] + ' ' + data[0] + ' ' + data[1]);
+	if (data[0]) {
+		console.log(food[Math.floor(Math.random() * food.length)], data[0], data[1]);
 		console.log(data[2].replace(/([a-z]|[à-ú])([A-Z]|[À-Ú])/g, '$1, $2') + '\n');
-	}
-	else {
+	} else {
 		console.log('\n' + nodata[lang]);
 		console.log(alternatives[Math.floor(Math.random() * alternatives.length)][lang] + '\n');
 	}
@@ -192,8 +189,8 @@ function printMenu(data) {
 }
 
 /*
-* Loading animation, custom made for slow BFH network ;)
-*/
+ * Loading animation, custom made for slow BFH network ;)
+ */
 function walk(i) {
 	if (!dinnerReady) {
 		const walker = ['🚶🏼', '🏃'];
@@ -201,7 +198,7 @@ function walk(i) {
 		process.stdout.write('  ' + walker[i] + text);
 		process.stdout.write("\r");
 		setTimeout(() => {
-			walk(i == 1 ? 0 : 1);
+			walk(i === 1 ? 0 : 1);
 		}, 200);
 	}
 }
