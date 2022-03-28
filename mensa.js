@@ -56,9 +56,13 @@ if (today.getHours() > 13 && today.getDay() != 5) {
 const uriDE = 'https://www.bfh.ch/ti/de/ueber-das-ti/standort-infrastruktur/';
 const uriFR = 'https://www.bfh.ch/ti/fr/le-ti/lieux-infrastructures/';
 
+// true when user wants to display whole week
+let showWeek = false;
+
 // Read the args for multilingual menu
 const args = process.argv.slice(1);
 const uri = getMultilingualURI(args);
+checkForWeekArgument(args);
 
 // Setting flag before displaying the menu
 let dinnerReady = false;
@@ -89,6 +93,12 @@ request(uri, (error, response, html) => {
 			var dateAndTimeTitle = $(element).find('h2').text();
 			var date = dateAndTimeTitle.split(',')[1].replace(/\s/g, ''); // split into date and remove spaces
 
+			var day = {
+				date: date,
+				meat: {},
+				vegi: {}
+			};
+
 			// iterate over menu options: 1st is meat, 2nd is vegi
 			$(element).find('.menuplan__menu').each((i, menu) => {
 				var menuTitle = $(menu).find('.menuplan-menu__title').text();
@@ -98,8 +108,11 @@ request(uri, (error, response, html) => {
 				var menuDescriptionHtml = $(menu).find('.menuplan-menu__description').html();
 				if (menuDescriptionHtml) {
 					var menuDescriptionTemp = menuDescriptionHtml.split('<br>');
+					// iterate over side menu options
 					menuDescriptionTemp.forEach(element => {
-						menuDescription.push($('<div/>').html(element).text()); // little hack to render ascii in UTF-8 https://stackoverflow.com/a/1912546
+						if (element) {
+							menuDescription.push($('<div/>').html(element).text()); // little hack to render ascii in UTF-8 https://stackoverflow.com/a/1912546
+						}
 					});
 				}
 
@@ -109,12 +122,16 @@ request(uri, (error, response, html) => {
 				menu.push(menuDescription);
 				menu.push(menuPrice);
 
-				// only add data when from today
-				if (checkTodayDate(date)) {
-					data.push(menu);
+				if (i == 0) {
+					day.meat = menu;
+				} else {
+					day.vegi = menu;
 				}
 			});
+
+			data.push(day);
 		});
+
 		// time to see the results
 		printMenu(data);
 	} else if (error) {
@@ -163,6 +180,17 @@ function getMultilingualURI(args) {
 	return uri;
 }
 
+/**
+ * Checks if user wants to see whole week.
+ */
+function checkForWeekArgument(args) {
+	if (args.some((val) => {
+		return val === '--week';
+	})) {
+		showWeek = true;
+	}
+}
+
 /*
  * Returns the current date as dd.mm.yyyy
  * Formatted explicitly to match the content on site
@@ -195,22 +223,40 @@ function printMenu(data) {
 	const food = ['🍳', '🍝', '🥗', '🥘', '🌭', '🍔', '🍟', '🥙', '🍛'];
 
 	console.clear();
-	if (data[0]) {
-		console.log('\n🥩');
-		console.log('*************************\n', data[0][0]);
-		data[0][1].forEach(item => {
-			console.log(" - ", item);
-		});
-		console.log('\n💵', data[0][2])
-		console.log('*************************');
+	if (data.length > 0) {
 
-		console.log('\n\n🌱');
-		console.log('*************************\n', data[1][0]);
-		data[1][1].forEach(item => {
-			console.log(" - ", item);
+		data.forEach(dayMenu => {
+
+			if (!showWeek && checkTodayDate(dayMenu.date) || showWeek) {
+				// show whole week or only today depending on showWeek
+
+				console.log('\n📅', dayMenu.date);
+
+				if (!dayMenu.meat[0] || !dayMenu.vegi[0]) {
+					console.log('\n' + nodata[lang]);
+					console.log(alternatives[Math.floor(Math.random() * alternatives.length)][lang] + '\n');
+					return;
+				}
+
+				console.log('\n🥩:', dayMenu.meat[0]);
+				dayMenu.meat[1].forEach(item => {
+					console.log(" - ", item);
+				});
+				console.log('💵', dayMenu.meat[2])
+
+				console.log('\n🌱:', dayMenu.vegi[0]);
+				dayMenu.vegi[1].forEach(item => {
+					console.log(" - ", item);
+				});
+				console.log('💵', dayMenu.vegi[2])
+
+				if (showWeek) {
+					console.log('\n------------------------------');
+				} else {
+					console.log();
+				}
+			}
 		});
-		console.log('\n💵', data[1][2])
-		console.log('*************************');
 	} else {
 		console.log('\n' + nodata[lang]);
 		console.log(alternatives[Math.floor(Math.random() * alternatives.length)][lang] + '\n');

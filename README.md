@@ -28,10 +28,6 @@ Create an alias for the node command in your `.bash_profile`, `.bashrc`, `.zshrc
 
 ```bash
 alias mensajs='node ~/path/to/mensajs/mensa.js'
-
-# You can also specify in which language you want to retrieve the menu
-# To retrieve the menu in French, add the --fr argument
-alias mensajs='node ~/path/to/mensajs/mensa.js --fr'
 ```
 
 Changes are only available in a new shell session. To make changes immediately
@@ -50,10 +46,6 @@ alias mensa='mensajs'
 
 # You can use whatever you want as an alias, like for very hungry days:
 alias givemefood='node ~/path/to/mensajs/mensa.js'
-
-# You can also specify in which language you want to retrieve the menu
-# To retrieve the menu in French, add the --fr argument
-alias mensajs='node ~/path/to/mensajs/mensa.js --fr'
 ```
 
 To make the command available from everywhere in the system, **DO NOT** remove the ~/ prefix at the beginning!
@@ -73,12 +65,6 @@ DOSKEY mensajs="node C:\path\to\mensajs\mensa.js"
 DOSKEY mensa="mensajs"
 ```
 
-You can also specify in which language you want to retrieve the menu.
-To retrieve the menu in French, add the `--fr` argument:
-```cmd
-DOSKEY mensajs="node C:\path\to\mensajs\mensa.js --fr"
-```
-
 Run `regedit` and go to `HKEY_CURRENT_USER\Software\Microsoft\Command Processor`, then choose `Add String Value` to add a new entry with the name `AutoRun` and the **full** path of your `.bat/.cmd` file.
 
 For example, `%USERPROFILE%\alias.cmd`, replacing the initial segment of the path with `%USERPROFILE%` is useful for syncing among multiple machines. This way, every time cmd is run, the aliases are loaded. The path as well as the name of your `.bat/.cmd` file are completely up to you and within your own responsibility.
@@ -89,9 +75,25 @@ After performing all these steps, make sure to restart your computer. The aliase
 
 After successfully performing all required steps described above, just open a terminal of your choice, type your specified alias command and press enter to get the glorious mensa menu of today!
 
-![Who's hungry?](assets/terminal.gif)
+![Who's hungry?](assets/hungry.gif)
 
-*Copyright (c) 2019 Guillaume Fricker*
+## Arguments
+
+### Language
+You can specify in which language you want to retrieve the menu. Default is German.
+To retrieve the menu in French, add the `--fr` argument:
+```bash
+node mensa.js --fr'
+```
+
+### Week
+You can retrieve the menu of the whole week.
+To retrieve the menu of the week, add the `--week` argument:
+```bash
+node mensa.js --week'
+```
+
+*Copyright (c) 2022 Guillaume Fricker*
 
 ## Contributors Hall of Fame
 
@@ -101,3 +103,5 @@ After successfully performing all required steps described above, just open a te
 
 **Joshua Drewlow (@drewjosh):**
 - Fixed fetching data from new website layout
+- Show date on menu entry
+- Added argument to request week menu
