@@ -249,7 +249,12 @@ function printMenu(data) {
 					console.log(" - ", item);
 				});
 				console.log('💵', dayMenu.vegi[2])
-				console.log('\n------------------------------');
+
+				if (showWeek) {
+					console.log('\n------------------------------');
+				} else {
+					console.log();
+				}
 			}
 		});
 	} else {
