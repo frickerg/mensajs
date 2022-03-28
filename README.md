@@ -104,4 +104,4 @@ node mensa.js --week'
 **Joshua Drewlow (@drewjosh):**
 - Fixed fetching data from new website layout
 - Show date on menu entry
-- Added argument to request week menu
+- Added argument to retrieve week menu
