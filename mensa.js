@@ -13,8 +13,8 @@
 
 // define i18n strings
 const waiting = {
-	fr: ' attend, je vais demander Hans...   ',
-	de: ' wart, mues schnäu de Hans go frage...   '
+	fr: ' attend, je vais demander Jonny...   ',
+	de: ' wart, mues schnäu de Jonny go frage...   '
 }
 const nodata = {
 	fr: 'Pas de cuisine aujourd\'hui.',
@@ -22,17 +22,17 @@ const nodata = {
 }
 
 const alternatives = [{
-		fr: 'Allez au Küban. 🥙',
-		de: 'Gang halt zum Küban. 🌯'
-	},
-	{
-		fr: 'Commandez une pizza. 🍕',
-		de: 'Bstell der en Pizza. 🍕'
-	},
-	{
-		fr: 'Va te chercher une baguette. 🥖',
-		de: 'Bitz Diät schadt der eh ned. 🤭'
-	}
+	fr: 'Allez au Küban. 🥙',
+	de: 'Gang halt zum Küban. 🌯'
+},
+{
+	fr: 'Commandez une pizza. 🍕',
+	de: 'Bstell der en Pizza. 🍕'
+},
+{
+	fr: 'Va te chercher une baguette. 🥖',
+	de: 'Bitz Diät schadt der eh ned. 🤭'
+}
 ]
 
 const error = {
@@ -80,21 +80,39 @@ request(uri, (error, response, html) => {
 		// define the loaded DOM as $ for jQuery syntax
 		var $ = cheerio.load(html);
 
-		$('table').each((i, element) => {
-			// retrieve all tr elements inside the current table element
-			var rows = $(element).children('tbody').children('tr');
+		// get the slide track, normaly Biel/Bienne cantine should be listed first
+		var menuDiv = $("div.comp-menuplan ul").first();
 
-			rows.each((i, element) => {
-				// retrieve all td elements inside the current row element
-				var column = $(element).children('td');
+		// iterate over slides, each slide is one day of week
+		$(menuDiv).find('li').each((i, element) => {
 
-				// validates the retrieved set of columns by checking the content of the second column
-				var check = formatColumnString($(column.get(1)).text());
-				if (checkTodayDate(check)) {
-					column.each((i, element) => {
-						// pushes each column with completely unformatted text
-						data.push(formatColumnString($(element).text()));
+			// get date title of each slide
+			var dateAndTimeTitle = $(element).find('h2').text();
+			var date = dateAndTimeTitle.split(',')[1].replace(/\s/g, ''); // split into date and remove spaces
+
+			// iterate over menu options: 1st is meat, 2nd is vegi
+			$(element).find('.menuplan__menu').each((i, menu) => {
+				var menuTitle = $(menu).find('.menuplan-menu__title').text();
+
+				// description is ugly because of <br>
+				var menuDescription = new Array();
+				var menuDescriptionHtml = $(menu).find('.menuplan-menu__description').html();
+				if (menuDescriptionHtml) {
+					var menuDescriptionTemp = menuDescriptionHtml.split('<br>');
+					menuDescriptionTemp.forEach(element => {
+						menuDescription.push($('<div/>').html(element).text()); // little hack to render ascii in UTF-8 https://stackoverflow.com/a/1912546
 					});
+				}
+
+				var menuPrice = $(menu).find('.menuplan-menu__price').text();
+				var menu = new Array();
+				menu.push(menuTitle);
+				menu.push(menuDescription);
+				menu.push(menuPrice);
+
+				// only add data when from today
+				if (checkTodayDate(date)) {
+					data.push(menu);
 				}
 			});
 		});
@@ -128,15 +146,15 @@ function getMultilingualURI(args) {
 
 	// check if the argument for FR has been specified (optional)
 	if (args.some((val) => {
-			return val === '--fr';
-		})) {
+		return val === '--fr';
+	})) {
 		lang = 'fr';
 	}
 
 	// make it possible to override mardi francophone
 	if (args.some((val) => {
-			return val === '--de';
-		})) {
+		return val === '--de';
+	})) {
 		lang = 'de';
 	}
 
@@ -179,8 +197,19 @@ function printMenu(data) {
 
 	console.clear();
 	if (data[0]) {
-		console.log(food[Math.floor(Math.random() * food.length)], data[0], data[1]);
-		console.log(data[2].replace(/([a-z]|[à-ú])([A-Z]|[À-Ú])/g, '$1, $2') + '\n');
+		console.log('\n🥩 Menü');
+		console.log('*************************\n', data[0][0]);
+		data[0][1].forEach(item => {
+			console.log(" - ", item);
+		});
+		console.log('*************************');
+
+		console.log('\n🌱 Menü');
+		console.log('*************************\n', data[1][0]);
+		data[1][1].forEach(item => {
+			console.log(" - ", item);
+		});
+		console.log('*************************');
 	} else {
 		console.log('\n' + nodata[lang]);
 		console.log(alternatives[Math.floor(Math.random() * alternatives.length)][lang] + '\n');

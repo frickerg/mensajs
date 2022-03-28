@@ -98,3 +98,6 @@ After successfully performing all required steps described above, just open a te
 **Gabriel Hess (@hessg1):**
 - Fixed a breaking error after the layout of the website had changed
 - Implemented the "Mardi Francophone", an important tradition at the I4MI
+
+**Joshua Drewlow (@drewjosh):**
+- Fixed fetching data from new website layout
