@@ -99,7 +99,9 @@ request(uri, (error, response, html) => {
 				if (menuDescriptionHtml) {
 					var menuDescriptionTemp = menuDescriptionHtml.split('<br>');
 					menuDescriptionTemp.forEach(element => {
-						menuDescription.push($('<div/>').html(element).text()); // little hack to render ascii in UTF-8 https://stackoverflow.com/a/1912546
+						if (element) {
+							menuDescription.push($('<div/>').html(element).text()); // little hack to render ascii in UTF-8 https://stackoverflow.com/a/1912546
+						}
 					});
 				}
 
