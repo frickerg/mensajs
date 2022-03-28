@@ -40,7 +40,6 @@ const error = {
 	de: 'Ups, da esch öppis schief glaufe. ☠️'
 }
 
-
 const request = require('request');
 const cheerio = require('cheerio');
 const today = new Date();
@@ -197,7 +196,7 @@ function printMenu(data) {
 
 	console.clear();
 	if (data[0]) {
-		console.log('\n🥩 Menü');
+		console.log('\n🥩');
 		console.log('*************************\n', data[0][0]);
 		data[0][1].forEach(item => {
 			console.log(" - ", item);
@@ -205,7 +204,7 @@ function printMenu(data) {
 		console.log('\n💵', data[0][2])
 		console.log('*************************');
 
-		console.log('\n\n🌱 Menü');
+		console.log('\n\n🌱');
 		console.log('*************************\n', data[1][0]);
 		data[1][1].forEach(item => {
 			console.log(" - ", item);
