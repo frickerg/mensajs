@@ -75,7 +75,7 @@ After performing all these steps, make sure to restart your computer. The aliase
 
 After successfully performing all required steps described above, just open a terminal of your choice, type your specified alias command and press enter to get the glorious mensa menu of today!
 
-![Who's hungry?](assets/terminal.gif)
+![Who's hungry?](assets/hungry.gif)
 
 ## Arguments
 
