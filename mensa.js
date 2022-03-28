@@ -244,7 +244,7 @@ function printMenu(data) {
 				});
 				console.log('💵', dayMenu.meat[2])
 
-				console.log('\n\n🌱:', dayMenu.vegi[0]);
+				console.log('\n🌱:', dayMenu.vegi[0]);
 				dayMenu.vegi[1].forEach(item => {
 					console.log(" - ", item);
 				});
