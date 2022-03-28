@@ -202,13 +202,15 @@ function printMenu(data) {
 		data[0][1].forEach(item => {
 			console.log(" - ", item);
 		});
+		console.log('\n💵', data[0][2])
 		console.log('*************************');
 
-		console.log('\n🌱 Menü');
+		console.log('\n\n🌱 Menü');
 		console.log('*************************\n', data[1][0]);
 		data[1][1].forEach(item => {
 			console.log(" - ", item);
 		});
+		console.log('\n💵', data[1][2])
 		console.log('*************************');
 	} else {
 		console.log('\n' + nodata[lang]);
