@@ -13,8 +13,8 @@
 
 // define i18n strings
 const waiting = {
-	fr: ' attend, je vais demander Hans...   ',
-	de: ' wart, mues schnäu de Hans go frage...   '
+	fr: ' attend, je vais demander Jonny...   ',
+	de: ' wart, mues schnäu de Jonny go frage...   '
 }
 const nodata = {
 	fr: 'Pas de cuisine aujourd\'hui.',
@@ -22,24 +22,23 @@ const nodata = {
 }
 
 const alternatives = [{
-		fr: 'Allez au Küban. 🥙',
-		de: 'Gang halt zum Küban. 🌯'
-	},
-	{
-		fr: 'Commandez une pizza. 🍕',
-		de: 'Bstell der en Pizza. 🍕'
-	},
-	{
-		fr: 'Va te chercher une baguette. 🥖',
-		de: 'Bitz Diät schadt der eh ned. 🤭'
-	}
+	fr: 'Allez au Küban. 🥙',
+	de: 'Gang halt zum Küban. 🌯'
+},
+{
+	fr: 'Commandez une pizza. 🍕',
+	de: 'Bstell der en Pizza. 🍕'
+},
+{
+	fr: 'Va te chercher une baguette. 🥖',
+	de: 'Bitz Diät schadt der eh ned. 🤭'
+}
 ]
 
 const error = {
 	fr: 'Oups. Quelque chose a mal tourné. ☠️',
 	de: 'Ups, da esch öppis schief glaufe. ☠️'
 }
-
 
 const request = require('request');
 const cheerio = require('cheerio');
@@ -57,9 +56,13 @@ if (today.getHours() > 13 && today.getDay() != 5) {
 const uriDE = 'https://www.bfh.ch/ti/de/ueber-das-ti/standort-infrastruktur/';
 const uriFR = 'https://www.bfh.ch/ti/fr/le-ti/lieux-infrastructures/';
 
+// true when user wants to display whole week
+let showWeek = false;
+
 // Read the args for multilingual menu
 const args = process.argv.slice(1);
 const uri = getMultilingualURI(args);
+checkForWeekArgument(args);
 
 // Setting flag before displaying the menu
 let dinnerReady = false;
@@ -80,24 +83,55 @@ request(uri, (error, response, html) => {
 		// define the loaded DOM as $ for jQuery syntax
 		var $ = cheerio.load(html);
 
-		$('table').each((i, element) => {
-			// retrieve all tr elements inside the current table element
-			var rows = $(element).children('tbody').children('tr');
+		// get the slide track, normaly Biel/Bienne cantine should be listed first
+		var menuDiv = $("div.comp-menuplan ul").first();
 
-			rows.each((i, element) => {
-				// retrieve all td elements inside the current row element
-				var column = $(element).children('td');
+		// iterate over slides, each slide is one day of week
+		$(menuDiv).find('li').each((i, element) => {
 
-				// validates the retrieved set of columns by checking the content of the second column
-				var check = formatColumnString($(column.get(1)).text());
-				if (checkTodayDate(check)) {
-					column.each((i, element) => {
-						// pushes each column with completely unformatted text
-						data.push(formatColumnString($(element).text()));
+			// get date title of each slide
+			var dateAndTimeTitle = $(element).find('h2').text();
+			var date = dateAndTimeTitle.split(',')[1].replace(/\s/g, ''); // split into date and remove spaces
+
+			var day = {
+				date: date,
+				meat: {},
+				vegi: {}
+			};
+
+			// iterate over menu options: 1st is meat, 2nd is vegi
+			$(element).find('.menuplan__menu').each((i, menu) => {
+				var menuTitle = $(menu).find('.menuplan-menu__title').text();
+
+				// description is ugly because of <br>
+				var menuDescription = new Array();
+				var menuDescriptionHtml = $(menu).find('.menuplan-menu__description').html();
+				if (menuDescriptionHtml) {
+					var menuDescriptionTemp = menuDescriptionHtml.split('<br>');
+					// iterate over side menu options
+					menuDescriptionTemp.forEach(element => {
+						if (element) {
+							menuDescription.push($('<div/>').html(element).text()); // little hack to render ascii in UTF-8 https://stackoverflow.com/a/1912546
+						}
 					});
 				}
+
+				var menuPrice = $(menu).find('.menuplan-menu__price').text();
+				var menu = new Array();
+				menu.push(menuTitle);
+				menu.push(menuDescription);
+				menu.push(menuPrice);
+
+				if (i == 0) {
+					day.meat = menu;
+				} else {
+					day.vegi = menu;
+				}
 			});
+
+			data.push(day);
 		});
+
 		// time to see the results
 		printMenu(data);
 	} else if (error) {
@@ -128,15 +162,15 @@ function getMultilingualURI(args) {
 
 	// check if the argument for FR has been specified (optional)
 	if (args.some((val) => {
-			return val === '--fr';
-		})) {
+		return val === '--fr';
+	})) {
 		lang = 'fr';
 	}
 
 	// make it possible to override mardi francophone
 	if (args.some((val) => {
-			return val === '--de';
-		})) {
+		return val === '--de';
+	})) {
 		lang = 'de';
 	}
 
@@ -144,6 +178,17 @@ function getMultilingualURI(args) {
 	lang === 'fr' ? uri = uriFR : uri = uriDE;
 
 	return uri;
+}
+
+/**
+ * Checks if user wants to see whole week.
+ */
+function checkForWeekArgument(args) {
+	if (args.some((val) => {
+		return val === '--week';
+	})) {
+		showWeek = true;
+	}
 }
 
 /*
@@ -178,9 +223,40 @@ function printMenu(data) {
 	const food = ['🍳', '🍝', '🥗', '🥘', '🌭', '🍔', '🍟', '🥙', '🍛'];
 
 	console.clear();
-	if (data[0]) {
-		console.log(food[Math.floor(Math.random() * food.length)], data[0], data[1]);
-		console.log(data[2].replace(/([a-z]|[à-ú])([A-Z]|[À-Ú])/g, '$1, $2') + '\n');
+	if (data.length > 0) {
+
+		data.forEach(dayMenu => {
+
+			if (!showWeek && checkTodayDate(dayMenu.date) || showWeek) {
+				// show whole week or only today depending on showWeek
+
+				console.log('\n📅', dayMenu.date);
+
+				if (!dayMenu.meat[0] || !dayMenu.vegi[0]) {
+					console.log('\n' + nodata[lang]);
+					console.log(alternatives[Math.floor(Math.random() * alternatives.length)][lang] + '\n');
+					return;
+				}
+
+				console.log('\n🥩:', dayMenu.meat[0]);
+				dayMenu.meat[1].forEach(item => {
+					console.log(" - ", item);
+				});
+				console.log('💵', dayMenu.meat[2])
+
+				console.log('\n🌱:', dayMenu.vegi[0]);
+				dayMenu.vegi[1].forEach(item => {
+					console.log(" - ", item);
+				});
+				console.log('💵', dayMenu.vegi[2])
+
+				if (showWeek) {
+					console.log('\n------------------------------');
+				} else {
+					console.log();
+				}
+			}
+		});
 	} else {
 		console.log('\n' + nodata[lang]);
 		console.log(alternatives[Math.floor(Math.random() * alternatives.length)][lang] + '\n');
