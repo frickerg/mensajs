@@ -1,6 +1,6 @@
 {
 	"name": "mensa.js",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "Webcrawler script to retrieve the daily menu of the Bern University of Applied Sciences cantina in Biel",
 	"main": "mensa.js",
 	"repository": {
@@ -24,7 +24,7 @@
 	},
 	"homepage": "https://github.com/frickerg/mensajs#readme",
 	"dependencies": {
-		"cheerio": "^1.0.0-rc.10",
-		"request": "^2.88.2"
+		"cheerio": "^1.0.0-rc.12",
+		"axios": "^1.7.2"
 	}
 }
