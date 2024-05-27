@@ -40,7 +40,7 @@ const error = {
 	de: 'Ups, da esch öppis schief glaufe. ☠️'
 }
 
-const request = require('request');
+const axios = require('axios');
 const cheerio = require('cheerio');
 const today = new Date();
 
@@ -67,6 +67,9 @@ checkForWeekArgument(args);
 // Setting flag before displaying the menu
 let dinnerReady = false;
 
+// flag to determine if there was an error
+let errorState = false;
+
 // Starting the program
 console.clear();
 walk(1);
@@ -75,13 +78,14 @@ walk(1);
  * Connects to the specified URI and reads today's cantina menu in Biel.
  * The validation process only checks against today's day to only display relevant menu entries.
  */
-request(uri, (error, response, html) => {
+axios.get(uri)
+.then((response) => {
 	// empty data array for results
 	var data = [];
 
-	if (response && response.statusCode === 200) {
+	if (response && response.status === 200) {
 		// define the loaded DOM as $ for jQuery syntax
-		var $ = cheerio.load(html);
+		var $ = cheerio.load(response.data);
 
 		// get the slide track, normaly Biel/Bienne cantine should be listed first
 		var menuDiv = $("div.comp-menuplan ul").first();
@@ -135,17 +139,24 @@ request(uri, (error, response, html) => {
 		// time to see the results
 		printMenu(data);
 	} else if (error) {
-		dinnerReady = true;
+		errorState = true;
 		// unexpected error in the RequestAPI
 		console.log(error[lang]);
 		console.error(error);
 	} else {
-		dinnerReady = true;
+		errorState = true;
 		// if this error occurs, the specified URI is invalid and/or outdated
 		console.error('\nERR: the specified URI is invalid');
 		console.error('=> ' + uri + '\n');
 	}
-});
+}).catch((error)=> {
+	errorState = true;
+	if (error.code && (error.code =='ETIMEDOUT' || error.code == 'ENOTFOUND')) {
+		console.log('Ha dä Jonny nöd gfunde... Schalt doch s Internet a du Pflock 🪵');
+	} else {
+		console.log('Es hät en Fehler gä:', error.code);
+	}
+})
 
 /*
 * Returns the BFH URI according to the specified language flag.
@@ -268,7 +279,7 @@ function printMenu(data) {
  * Loading animation, custom made for slow BFH network ;)
  */
 function walk(i) {
-	if (!dinnerReady) {
+	if (!dinnerReady && !errorState) {
 		const walker = ['🚶🏼', '🏃'];
 		const text = waiting[lang];
 		process.stdout.write('  ' + walker[i] + text);
