@@ -105,3 +105,4 @@ node mensa.js --week'
 - Fixed fetching data from new website layout
 - Show date on menu entry
 - Added argument to retrieve week menu
+- replaced request with axios
