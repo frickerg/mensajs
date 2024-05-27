@@ -83,14 +83,14 @@ After successfully performing all required steps described above, just open a te
 You can specify in which language you want to retrieve the menu. Default is German.
 To retrieve the menu in French, add the `--fr` argument:
 ```bash
-node mensa.js --fr'
+node mensa.js --fr
 ```
 
 ### Week
 You can retrieve the menu of the whole week.
 To retrieve the menu of the week, add the `--week` argument:
 ```bash
-node mensa.js --week'
+node mensa.js --week
 ```
 
 *Copyright (c) 2022 Guillaume Fricker*
